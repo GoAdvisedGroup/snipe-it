@@ -9,6 +9,7 @@ use App\Models\Company;
 use App\Http\Transformers\LocationsTransformer;
 use App\Http\Transformers\SelectlistTransformer;
 use App\Models\Location;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -66,7 +67,10 @@ class LocationsController extends Controller
             ->withCount('rtd_assets as rtd_assets_count')
             ->withCount('users as users_count');
 
-        $locations = Company::scopeCompanyables($locations);
+        // Only scope locations if the setting is enabled
+        if (Setting::getSettings()->scope_locations_fmcs) {
+            $locations = Company::scopeCompanyables($locations);
+        }
 
         if ($request->filled('search')) {
             $locations = $locations->TextSearch($request->input('search'));
@@ -144,8 +148,12 @@ class LocationsController extends Controller
         $this->authorize('create', Location::class);
         $location = new Location;
         $location->fill($request->all());
-        $location->company_id = Company::getIdForCurrentUser($request->get('company_id'));
         $location = $request->handleImages($location);
+
+        // Only scope location if the setting is enabled
+        if (Setting::getSettings()->scope_locations_fmcs) {
+            $location->company_id = Company::getIdForCurrentUser($request->get('company_id'));
+        }
 
         if ($location->save()) {
             return response()->json(Helper::formatStandardApiResponse('success', (new LocationsTransformer)->transformLocation($location), trans('admin/locations/message.create.success')));
@@ -210,7 +218,12 @@ class LocationsController extends Controller
         $location = $request->handleImages($location);
 
         if ($request->filled('company_id')) {
-            $location->company_id = Company::getIdForCurrentUser($request->get('company_id'));
+            // Only scope location if the setting is enabled
+            if (Setting::getSettings()->scope_locations_fmcs) {
+                $location->company_id = Company::getIdForCurrentUser($request->get('company_id'));
+            } else {
+                $location->company_id = $request->get('company_id');
+            }
         }
 
         if ($location->isValid()) {
@@ -290,7 +303,10 @@ class LocationsController extends Controller
             'locations.image',
         ]);
 
-        $locations = Company::scopeCompanyables($locations);
+        // Only scope locations if the setting is enabled
+        if (Setting::getSettings()->scope_locations_fmcs) {
+            $locations = Company::scopeCompanyables($locations);
+        }
 
         $page = 1;
         if ($request->filled('page')) {
