@@ -298,6 +298,14 @@ class LocationsController extends Controller
 
         $this->authorize('view.selectlists');
 
+        /** Toevoeging voor locaties linken aan bedrijven **/
+	      if (Auth::user()) {
+            $company_id = Auth::user()->company_id;
+        } else {
+            $company_id = false;
+        }
+        /** Toevoeging voor locaties linken aan bedrijven **/
+
         $locations = Location::select([
             'locations.id',
             'locations.name',
@@ -318,6 +326,12 @@ class LocationsController extends Controller
         if ($request->filled('search')) {
             $locations = $locations->where('locations.name', 'LIKE', '%'.$request->input('search').'%');
         }
+
+        /** Toevoeging voor locaties linken aan bedrijven **/
+      	if ($company_id){//user belongs to company
+      		$locations = $locations->where('locations.company_id', '=', $company_id);
+      	}
+      	/** Toevoeging voor locaties linken aan bedrijven **/
 
         $locations = $locations->orderBy('name', 'ASC')->get();
 
