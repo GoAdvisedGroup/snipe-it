@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Http\Traits\UniqueUndeletedTrait;
 use App\Models\Asset;
+use App\Models\Setting;
 use App\Models\SnipeModel;
 use App\Models\Traits\Searchable;
 use App\Models\User;
@@ -17,6 +18,16 @@ use Watson\Validating\ValidatingTrait;
 
 class Location extends SnipeModel
 {
+    function __construct() {
+        parent::__construct();
+        // This is a workaround for backward compatibility with older versions where locations doesn't get scoped.
+        // Normaly we would only add 'use CompanyableTrait;', but this has to be conditional on the setting.
+        // So instead of using the trait, add the scope directly if no backward compatibility is used
+        if (Setting::getSettings()->scope_locations_fmcs) {
+            static::addGlobalScope(new CompanyableScope);
+        }
+    }
+
     use HasFactory;
 
     protected $presenter = \App\Presenters\LocationPresenter::class;
@@ -34,11 +45,13 @@ class Location extends SnipeModel
         'zip'           => 'max:10|nullable',
         'manager_id'    => 'exists:users,id|nullable',
         'parent_id'     => 'non_circular:locations,id',
+        'company_id'    => 'integer|nullable'
     ];
 
     protected $casts = [
         'parent_id'     => 'integer',
         'manager_id'    => 'integer',
+        'company_id'    => 'integer',
     ];
 
     /**
@@ -70,6 +83,7 @@ class Location extends SnipeModel
         'currency',
         'manager_id',
         'image',
+        'company_id',
     ];
     protected $hidden = ['user_id'];
 
@@ -88,7 +102,8 @@ class Location extends SnipeModel
      * @var array
      */
     protected $searchableRelations = [
-      'parent' => ['name'],
+      'parent'  => ['name'],
+      'company' => ['name']
     ];
 
 
@@ -206,6 +221,17 @@ class Location extends SnipeModel
             ->with('parent');
     }
 
+    /**
+    * Establishes the locations -> company relationship
+    *
+    * @author [T. Regnery] [<tobias.regnery@gmail.com>]
+    * @since [v6.0]
+    * @return \Illuminate\Database\Eloquent\Relations\Relation
+    */
+    public function company()
+    {
+        return $this->belongsTo('\App\Models\Company', 'company_id');
+    }
 
     /**
      * Find the manager of a location
@@ -304,5 +330,18 @@ class Location extends SnipeModel
     public function scopeOrderManager($query, $order)
     {
         return $query->leftJoin('users as location_user', 'locations.manager_id', '=', 'location_user.id')->orderBy('location_user.first_name', $order)->orderBy('location_user.last_name', $order);
+    }
+
+   /**
+    * Query builder scope to order on company
+    *
+    * @param  \Illuminate\Database\Query\Builder  $query  Query builder instance
+    * @param  text                              $order       Order
+    *
+    * @return \Illuminate\Database\Query\Builder          Modified query builder
+    */
+    public function scopeOrderCompany($query, $order)
+    {
+        return $query->leftJoin('companies as company_sort', 'locations.company_id', '=', 'company_sort.id')->orderBy('company_sort.name', $order);
     }
 }
