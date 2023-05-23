@@ -13,6 +13,7 @@ use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Auth;
 
 class LocationsController extends Controller
 {
