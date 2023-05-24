@@ -11,7 +11,7 @@ return [
     'remove'                    => 'Verwijder',
     'request'                   => 'Aanvraag',
     'submit'  	                => 'Verzenden',
-    'upload'                    => 'Verstuur',
+    'upload'                    => 'Bestand en/of notitie toevoegen',
     'select_file'				=> 'Bestand selecteren...',
     'select_files'				=> 'Bestanden selecteren...',
     'generate_labels'           => '{1} Genereer label|[2,*] Genereer labels',

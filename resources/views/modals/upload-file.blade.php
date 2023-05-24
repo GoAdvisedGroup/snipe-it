@@ -9,7 +9,7 @@
             {{ Form::open([
             'method' => 'POST',
             'route' => ['upload/'.$item_type, $item_id],
-            'files' => true,
+            'files' => false,
             'class' => 'form-horizontal' ]) }}
             <input type="hidden" name="_token" value="{{ csrf_token() }}" />
             <div class="modal-body">
@@ -19,7 +19,7 @@
 
                         <label class="btn btn-default">
                             {{ trans('button.select_file')  }}
-                            <input type="file" name="file[]" multiple="true" class="js-uploadFile" id="uploadFile" data-maxsize="{{ Helper::file_upload_max_size() }}" accept="image/*,.csv,.zip,.rar,.doc,.docx,.xls,.xlsx,.xml,.lic,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/plain,.pdf,application/rtf,application/json" style="display:none" required>
+                            <input type="file" name="file[]" multiple="true" class="js-uploadFile" id="uploadFile" data-maxsize="{{ Helper::file_upload_max_size() }}" accept="image/*,.csv,.zip,.rar,.doc,.docx,.xls,.xlsx,.xml,.lic,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/plain,.pdf,application/rtf,application/json" style="display:none">
                         </label>
 
                     </div>
