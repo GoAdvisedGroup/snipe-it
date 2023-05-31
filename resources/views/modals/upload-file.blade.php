@@ -9,7 +9,7 @@
             {{ Form::open([
             'method' => 'POST',
             'route' => ['upload/'.$item_type, $item_id],
-            'files' => false,
+            'files' => true,
             'class' => 'form-horizontal' ]) }}
             <input type="hidden" name="_token" value="{{ csrf_token() }}" />
             <div class="modal-body">

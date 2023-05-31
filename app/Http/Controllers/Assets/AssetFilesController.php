@@ -58,11 +58,15 @@ class AssetFilesController extends Controller
                 } else {
                 Storage::put('private_uploads/assets/'.$file_name, file_get_contents($file));
                 }
-               
-                
+
+
                 $asset->logUpload($file_name, e($request->get('notes')));
             }
 
+            return redirect()->back()->with('success', trans('admin/hardware/message.upload.success'));
+        } else if($request->get('notes')) {
+
+            $asset->logCreate(e($request->get('notes')));
             return redirect()->back()->with('success', trans('admin/hardware/message.upload.success'));
         }
 
